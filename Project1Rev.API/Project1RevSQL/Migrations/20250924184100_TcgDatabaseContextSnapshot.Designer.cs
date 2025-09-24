@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project1RevSQL.Data;
 
@@ -10,9 +11,11 @@ using Project1RevSQL.Data;
 namespace Project1RevSQL.Migrations
 {
     [DbContext(typeof(TcgDbContext))]
-    partial class TcgDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250924184100_TcgDatabaseContextSnapshot")]
+    partial class TcgDatabaseContextSnapshot
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -86,9 +89,10 @@ namespace Project1RevSQL.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("RoundType")
+                    b.Property<string>("Rounds")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("RuleType")
                         .IsRequired()

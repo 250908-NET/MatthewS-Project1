@@ -5,7 +5,7 @@
 namespace Project1RevSQL.Migrations
 {
     /// <inheritdoc />
-    public partial class TcgDbContextSnapshot : Migration
+    public partial class TcgDatabaseContextSnapshot : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,6 +16,7 @@ namespace Project1RevSQL.Migrations
                 {
                     PlayerId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     WinLoss = table.Column<double>(type: "float", maxLength: 50, nullable: false),
                     TotalRounds = table.Column<int>(type: "int", maxLength: 50, nullable: false),
                     City = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -32,6 +33,7 @@ namespace Project1RevSQL.Migrations
                     TournamentId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SizeLimit = table.Column<int>(type: "int", maxLength: 50, nullable: false),
+                    Storename = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Address = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     City = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     RuleType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),

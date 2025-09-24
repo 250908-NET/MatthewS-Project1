@@ -4,15 +4,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Project1Rev.Data;
+using Project1RevSQL.Data;
 
 #nullable disable
 
 namespace Project1RevSQL.Migrations
 {
     [DbContext(typeof(TcgDbContext))]
-    [Migration("20250923210008_TcgDbContextSnapshot")]
-    partial class TcgDbContextSnapshot
+    [Migration("20250924184823_collection")]
+    partial class collection
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,7 +39,7 @@ namespace Project1RevSQL.Migrations
                     b.ToTable("PlayerTournament");
                 });
 
-            modelBuilder.Entity("Project1Rev.Models.Player", b =>
+            modelBuilder.Entity("Project1RevSQL.Models.Player", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -56,6 +56,11 @@ namespace Project1RevSQL.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("int");
 
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<double>("WinLoss")
                         .HasMaxLength(50)
                         .HasColumnType("float");
@@ -65,7 +70,7 @@ namespace Project1RevSQL.Migrations
                     b.ToTable("Players");
                 });
 
-            modelBuilder.Entity("Project1Rev.Models.Tournament", b =>
+            modelBuilder.Entity("Project1RevSQL.Models.Tournament", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -98,6 +103,11 @@ namespace Project1RevSQL.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("int");
 
+                    b.Property<string>("Storename")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("TcgName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -110,13 +120,13 @@ namespace Project1RevSQL.Migrations
 
             modelBuilder.Entity("PlayerTournament", b =>
                 {
-                    b.HasOne("Project1Rev.Models.Player", null)
+                    b.HasOne("Project1RevSQL.Models.Player", null)
                         .WithMany()
                         .HasForeignKey("PlayersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Project1Rev.Models.Tournament", null)
+                    b.HasOne("Project1RevSQL.Models.Tournament", null)
                         .WithMany()
                         .HasForeignKey("TournamentsId")
                         .OnDelete(DeleteBehavior.Cascade)

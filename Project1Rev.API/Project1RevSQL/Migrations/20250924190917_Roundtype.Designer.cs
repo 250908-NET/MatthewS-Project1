@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project1RevSQL.Data;
 
@@ -10,9 +11,11 @@ using Project1RevSQL.Data;
 namespace Project1RevSQL.Migrations
 {
     [DbContext(typeof(TcgDbContext))]
-    partial class TcgDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250924190917_Roundtype")]
+    partial class Roundtype
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

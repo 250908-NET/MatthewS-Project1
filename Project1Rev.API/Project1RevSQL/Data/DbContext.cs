@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Project1Rev.Models;
+using Project1RevSQL.Models;
 
-namespace Project1Rev.Data;
+namespace Project1RevSQL.Data;
 
 public class TcgDbContext : DbContext
 {

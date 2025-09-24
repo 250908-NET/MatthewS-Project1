@@ -1,6 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using Project1Rev.Data;
-using Project1Rev.Models;
+using Microsoft.AspNetCore.Mvc;
+using Project1RevSQL.Data;
+using Project1RevSQL.Models;
+using Project1RevSQL.Repositories.implementation;
+using Project1RevSQL.Repositories.interfaces;
+using Project1RevSQL.Services.implementation;
+using Project1RevSQL.Services.interfaces;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +18,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<TcgDbContext>(options => options.UseSqlServer(ServerString));
+
+
+builder.Services.AddScoped<IPlayerRepo, PlayerRepo>();
+builder.Services.AddScoped<ITournamentRepo, TournamentRepo>();
+
+builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddScoped<ITournamentService, TournamentService>();
 
 Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
 
@@ -31,9 +43,174 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/", () => {
+app.MapGet("/", () =>
+{
     return "Hello world";
+});
+// Simple Endpoints for Players
+app.MapGet("/players", async (IPlayerService service) =>
+{
+    return Results.Ok(new { Status = "Success", Data = await service.GetAllAsync(), Message = "Players Retrieved" });
+});
+app.MapPost("/players", async (IPlayerService service,[FromBody] Player player) =>
+{
+    await service.CreateAsync(player);
+    return Results.Ok(new { Status = "Success", Data = player, Message = "Player created" });
+});
+app.MapGet("/players/{id}", async (IPlayerService service, int id) =>
+{
+    var player = await service.GetByIdAsync(id);
+    if (player == null)
+    {
+        return Results.NotFound(new { Status = "Error", Message = "Player not found" });
+    }
+    return Results.Ok(new { Status = "Success", Data = player, Message = "Player Retrieved" });
+});
+app.MapPut("/players/username/{id}", async (IPlayerService service, int id, [FromBody] string username) =>
+{
+    try
+    {
+        return Results.Ok(new { Status = "Success", Data = await service.UpdateUsernameAsync(id, username), Message = "Username Updated" });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new { Status = "Error", Message = ex.Message });
+    }
+});
+// Simple Endpoints for Tournaments
+app.MapGet("/tournaments", async (ITournamentService service) =>
+{
+    return Results.Ok(new { Status = "Success", Data = await service.GetAllAsync(), Message = "Tournaments Retrieved" });
+});
+app.MapGet("/tournaments/{id}", async (ITournamentService service, int id) =>
+{
+    var tournament = await service.GetByIdAsync(id);
+    if (tournament == null)
+    {
+        return Results.NotFound(new { Status = "Error", Message = "Tournament not found" });
+    }
+    return Results.Ok(new { Status = "Success", Data = tournament, Message = "Tournament Retrieved" });
+});
+app.MapPost("/tournaments", async (ITournamentService service, [FromBody] Tournament tournament) =>
+{
+    await service.CreateAsync(tournament);
+    return Results.Ok(new { Status = "Success", Data = tournament, Message = "Tournament created" });
+});
+app.MapPut("/tournaments/{id}", async (ITournamentService service, int id, [FromBody] TournamentUpdateDto? tournament) =>
+{
+    try
+    {
+        var existingTournament = await service.GetByIdAsync(id);
+        if (existingTournament == null)
+        {
+            return Results.NotFound(new { Status = "Error", Message = "Tournament not found" });
+        }
+        existingTournament.SizeLimit = tournament.SizeLimit ?? existingTournament.SizeLimit;
+        existingTournament.Storename = tournament.Storename ?? existingTournament.Storename;
+        existingTournament.Address = tournament.Address ?? existingTournament.Address;
+        existingTournament.City = tournament.City ?? existingTournament.City;
+        existingTournament.RuleType = tournament.RuleType ?? existingTournament.RuleType;
+        existingTournament.RoundType = tournament.RoundType ?? existingTournament.RoundType;
+        existingTournament.TcgName = tournament.TcgName ?? existingTournament.TcgName;
+        return Results.Ok(new { Status = "Success", Data = await service.UpdateAsync(id, existingTournament), Message = "Tournament Updated" });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new { Status = "Error", Message = ex.Message });
+    }
+    
+
+});
+// Endpoints using both player and tournament
+
+
+app.MapGet("players/tournaments/{tournamentId}", async (ITournamentService service, int tournamentId) =>
+{
+var tournament = await service.GetByIdAsync(tournamentId);
+if (tournament == null)
+{
+    return Results.NotFound(new { Status = "Error", Message = "Tournament not found" });
+}
+    try
+    {
+        var players = await service.GetAllPlayers(tournamentId);
+        string playerNames = string.Join(", ", players.Select(p => p.UserName));
+        return Results.Ok(new { Status = "Success", Data = playerNames, Message = "Players Retrieved" });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new { Status = "Error", Message = ex.Message });
+    }
+    {
+        
+    }
+
+});
+/*
+    Register a player for a tournament
+    This should add an entry to the join table
+*/
+app.MapPost("/players/tournaments/{playerId}/{tournamentId}", async (IPlayerService playerService, ITournamentService tournamentService, int playerId, int tournamentId) =>
+{
+    var player = await playerService.GetByIdAsync(playerId);
+    if (player == null)
+    {
+        return Results.NotFound(new { Status = "Error", Message = "Player not found" });
+    }
+    var tournament = await tournamentService.GetByIdAsync(tournamentId);
+    if (tournament == null)
+    {
+        return Results.NotFound(new { Status = "Error", Message = "Tournament not found" });
+    }
+    try
+    {
+        int numberOfPlayers = await tournamentService.GetCountPlayersInTournament(tournamentId);
+        if (numberOfPlayers >= tournament.SizeLimit)
+        {
+            return Results.Ok(new { Status = "Error", Message = "Tournament is full" });
+        }
+        await playerService.RegisterPlayerAsync(playerId, tournamentId);
+        return Results.Ok(new { Status = "Success", Message = "Player Registered for Tournament" });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new { Status = "Error", Message = ex.Message });
+    }
+});
+
+app.MapDelete("/players/tournaments/{playerId}/{tournamentId}", async (IPlayerService playerService, ITournamentService tournamentService, int playerId, int tournamentId) =>
+{
+    var player = await playerService.GetByIdAsync(playerId);
+    if (player == null)
+    {
+        return Results.NotFound(new { Status = "Error", Message = "Player not found" });
+    }
+    var tournament = await tournamentService.GetByIdAsync(tournamentId);
+    if (tournament == null)
+    {
+        return Results.NotFound(new { Status = "Error", Message = "Tournament not found" });
+    }
+    try
+    {
+        await playerService.RemovePlayerAsync(playerId, tournamentId);
+        return Results.Ok(new { Status = "Success", Message = "Player Removed from Tournament" });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new { Status = "Error", Message = ex.Message });
+    }
+
 });
 
 app.Run();
 
+public record TournamentUpdateDto(
+    int? SizeLimit,
+    string? Storename,
+    string? Address,
+    string? City,
+    string? RuleType,
+    string? RoundType,
+    string? TcgName
+);
+public partial class Program { };

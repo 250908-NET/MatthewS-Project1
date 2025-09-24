@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema; 
-namespace Project1Rev.Models;
+namespace Project1RevSQL.Models;
 
 public class Tournament
 {
@@ -13,6 +13,9 @@ public class Tournament
     public int SizeLimit { get; set; }
     [Required]
     [MaxLength(50)]
+    public string Storename { get; set; }
+    [Required]
+    [MaxLength(50)]
     public string Address { get; set; }
     [Required]
     [MaxLength(50)]
@@ -20,12 +23,10 @@ public class Tournament
     [Required]
     [MaxLength(50)]
     public string RuleType { get; set; }
-    [Required]
-    [MaxLength(50)]
-    public string Rounds { get; set; }
+    public string RoundType { get; set; }
     [Required]
     [MaxLength(50)]
     public string TcgName { get; set; }
 
-    public List<Player> Players { get; set; } = new();
+    public ICollection<Player> Players { get; set; } = new List<Player>();
 }
