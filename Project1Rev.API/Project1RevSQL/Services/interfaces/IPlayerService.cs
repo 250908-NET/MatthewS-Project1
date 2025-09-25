@@ -12,7 +12,7 @@ namespace Project1RevSQL.Services.interfaces
         Task<List<Player>> GetAllAsync(); // get all players
         Task<Player> GetByIdAsync(int id); // get player by id
         Task<Player> CreateAsync(Player player); // create a new player
-        Task<Player> UpdateUsernameAsync(int id, string newUsername); // update player's username
+        Task<Player> UpdateAsync(Player player, int id); // update player's information
         Task RegisterPlayerAsync(int playerId, int tournamentId); // register player to a tournament
         Task RemovePlayerAsync(int playerId, int tournamentId); // remove player from a tournament
         Task DeleteAsync(int id); // delete a player

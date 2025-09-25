@@ -63,9 +63,15 @@ namespace Project1RevSQL.Repositories.implementation
             string sqlString = "SELECT p.* FROM Players AS p RIGHT OUTER JOIN PlayerTournament AS pt ON p.PlayerId = pt.PlayersId WHERE pt.TournamentsId = {0}";
             return await _context.Players.FromSqlRaw(sqlString, tournamentId).ToListAsync();
         }
-        public async Task DeleteAsync(Tournament tournament)
+        public async Task DeleteAsync(int id)
         {
-           _context.Tournaments.Remove(tournament);
+          var tournament = await _context.Tournaments.FindAsync(id);
+            if (tournament == null)
+            {
+                throw new Exception("Tournament not found");
+            }
+            _context.Tournaments.Remove(tournament);
+            await _context.SaveChangesAsync();
         }
     }
 }

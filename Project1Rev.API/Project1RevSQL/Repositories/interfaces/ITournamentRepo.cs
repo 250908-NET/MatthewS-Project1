@@ -16,6 +16,6 @@ namespace Project1RevSQL.Repositories.interfaces
         Task SaveChangesAsync(); // save changes to the database
         Task<int> GetCountPlayersInTournament(int tournamentId); // get the count of players in a tournament
         Task<ICollection<Player>> GetAllPlayersAsync(int tournamentId); // get all players in a tournament
-        Task DeleteAsync(Tournament tournament); // delete a tournament
+        Task DeleteAsync(int id); // delete a tournament
     }
 }

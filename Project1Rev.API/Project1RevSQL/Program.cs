@@ -72,11 +72,21 @@ app.MapGet("/players/{id}", async (IPlayerService service, int id) =>
     }
     return Results.Ok(new { Status = "Success", Data = player, Message = "Player Retrieved" });
 });
-app.MapPut("/players/username/{id}", async (IPlayerService service, int id, [FromBody] string username) =>
+app.MapPut("/players/{id}", async (IPlayerService service, int id, [FromBody] PlayerUpdateDto? player) =>
 {
+    var existingPlayer = await service.GetByIdAsync(id);
+    if (existingPlayer == null)
+    {
+        return Results.NotFound(new { Status = "Error", Message = "Player not found" });
+    }
+    existingPlayer.UserName = player.UserName ?? existingPlayer.UserName;
+    existingPlayer.WinLoss = player.WinLoss ?? existingPlayer.WinLoss;
+    existingPlayer.TotalRounds = player.TotalRounds ?? existingPlayer.TotalRounds;
+    existingPlayer.City = player.City ?? existingPlayer.City;
+    
     try
     {
-        return Results.Ok(new { Status = "Success", Data = await service.UpdateUsernameAsync(id, username), Message = "Username Updated" });
+        return Results.Ok(new { Status = "Success", Data = await service.UpdateAsync(existingPlayer, id), Message = "Username Updated" });
     }
     catch (Exception ex)
     {
@@ -86,11 +96,7 @@ app.MapPut("/players/username/{id}", async (IPlayerService service, int id, [Fro
 // Delete player
 app.MapDelete("/players/{id}", async (IPlayerService service, int id) =>
 {
-    var player = await service.GetByIdAsync(id);
-    if (player == null)
-    {
-        return Results.NotFound(new { Status = "Error", Message = "Player not found" });
-    }
+    
     // Deletion logic would go here
     try
     {
@@ -262,5 +268,11 @@ public record TournamentUpdateDto(
     string? RuleType,
     string? RoundType,
     string? TcgName
+);
+public record PlayerUpdateDto(
+    string? UserName,
+    double? WinLoss,
+    int? TotalRounds,
+    string? City
 );
 public partial class Program { };

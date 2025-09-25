@@ -14,6 +14,7 @@ namespace Project1RevSQL.Repositories.interfaces
         Task AddAsync(Player player); // add a new player
         Task UpdateAsync(Player player); // update an existing player
         Task SaveChangesAsync(); // save changes to the database
+
         Task AddPlayerAsync(int playerId, int tournamentId); // register a player for a tournament
         Task RemovePlayerAsync(int playerId, int tournamentId); // remove a player from a tournament
         Task DeleteAsync(int id); // delete a player

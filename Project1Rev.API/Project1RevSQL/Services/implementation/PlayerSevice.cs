@@ -36,18 +36,13 @@ namespace Project1RevSQL.Services.implementation
             await _repo.SaveChangesAsync();
             return player;
         }
-        // method to update a player's username
-        public async Task<Player> UpdateUsernameAsync(int id, string newUsername)
+        // method to update a player's information
+        public async Task<Player> UpdateAsync(Player player,int id)
         {
-            var existingPlayer = await _repo.GetByIdAsync(id);
-            if (existingPlayer == null)
-            {
-                throw new Exception("Player not found");
-            }
-            existingPlayer.UserName = newUsername;
-            await _repo.UpdateAsync(existingPlayer);
+            
+            await _repo.UpdateAsync(player);
             await _repo.SaveChangesAsync();
-            return existingPlayer;
+            return player;
         }
         // method to register a player for a tournament
         public async Task RegisterPlayerAsync(int playerId, int tournamentId)
@@ -84,7 +79,11 @@ namespace Project1RevSQL.Services.implementation
         */
         public async Task DeleteAsync(int id)
         {
-
+            var player = await GetByIdAsync(id);
+            if (player == null)
+            {
+                throw new Exception("Player not found");
+            }
             await _repo.DeleteAsync(id);
             await _repo.SaveChangesAsync();
         }

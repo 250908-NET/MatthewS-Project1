@@ -61,9 +61,8 @@ namespace Project1RevSQL.Services.implementation
         */
         public async Task DeleteAsync(int id)
         {
-            var tournament = await _repo.GetByIdAsync(id);
 
-            await _repo.DeleteAsync(tournament);
+            await _repo.DeleteAsync(id);
             await _repo.SaveChangesAsync();
         }
     }
