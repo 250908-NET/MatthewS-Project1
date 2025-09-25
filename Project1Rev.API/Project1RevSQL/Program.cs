@@ -1,3 +1,9 @@
+/*
+    Program.cs
+    This is the main entry point for the application.
+    It sets up the web application, configures services, and defines endpoints.
+*/
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Project1RevSQL.Data;
@@ -77,6 +83,25 @@ app.MapPut("/players/username/{id}", async (IPlayerService service, int id, [Fro
         return Results.Ok(new { Status = "Error", Message = ex.Message });
     }
 });
+// Delete player
+app.MapDelete("/players/{id}", async (IPlayerService service, int id) =>
+{
+    var player = await service.GetByIdAsync(id);
+    if (player == null)
+    {
+        return Results.NotFound(new { Status = "Error", Message = "Player not found" });
+    }
+    // Deletion logic would go here
+    try
+    {
+        await service.DeleteAsync(id);
+        return Results.Ok(new { Status = "Success", Message = "Player deleted" });
+    }
+    catch (Exception ex) // catch any errors that occure, this should never happen
+    {
+        return Results.Ok(new { Status = "Error", Message = ex.Message });
+    }
+});
 // Simple Endpoints for Tournaments
 app.MapGet("/tournaments", async (ITournamentService service) =>
 {
@@ -118,26 +143,48 @@ app.MapPut("/tournaments/{id}", async (ITournamentService service, int id, [From
     {
         return Results.Ok(new { Status = "Error", Message = ex.Message });
     }
-    
 
+
+});
+// delete tournament
+app.MapDelete("/tournaments/{id}", async (ITournamentService service, int id) =>
+{
+    var tournament = await service.GetByIdAsync(id);
+    if (tournament == null)
+    {
+        return Results.NotFound(new { Status = "Error", Message = "Tournament not found" });
+    }
+    // Deletion logic would go here
+    try
+    {
+        await service.DeleteAsync(id);
+        return Results.Ok(new { Status = "Success", Message = "Tournament deleted" });
+    }
+    catch (Exception ex) // catch any errors that occure, this should never happen
+    {
+        return Results.Ok(new { Status = "Error", Message = ex.Message });
+    }
 });
 // Endpoints using both player and tournament
 
-
-app.MapGet("players/tournaments/{tournamentId}", async (ITournamentService service, int tournamentId) =>
+/*
+    Get all players in a tournament
+    This should return a list of player usernames
+*/
+app.MapGet("/players/tournaments/{tournamentId}", async (ITournamentService service, int tournamentId) =>
 {
 var tournament = await service.GetByIdAsync(tournamentId);
-if (tournament == null)
+if (tournament == null) // tournament does not exist
 {
     return Results.NotFound(new { Status = "Error", Message = "Tournament not found" });
 }
-    try
+    try // try to get all players in the tournament
     {
         var players = await service.GetAllPlayers(tournamentId);
         string playerNames = string.Join(", ", players.Select(p => p.UserName));
         return Results.Ok(new { Status = "Success", Data = playerNames, Message = "Players Retrieved" });
     }
-    catch (Exception ex)
+    catch (Exception ex) // catch error(this exist to catch if the tournament has no players)
     {
         return Results.Ok(new { Status = "Error", Message = ex.Message });
     }
@@ -153,7 +200,7 @@ if (tournament == null)
 app.MapPost("/players/tournaments/{playerId}/{tournamentId}", async (IPlayerService playerService, ITournamentService tournamentService, int playerId, int tournamentId) =>
 {
     var player = await playerService.GetByIdAsync(playerId);
-    if (player == null)
+    if (player == null) // player does not exist
     {
         return Results.NotFound(new { Status = "Error", Message = "Player not found" });
     }
@@ -162,7 +209,7 @@ app.MapPost("/players/tournaments/{playerId}/{tournamentId}", async (IPlayerServ
     {
         return Results.NotFound(new { Status = "Error", Message = "Tournament not found" });
     }
-    try
+    try // try to register player for tournament
     {
         int numberOfPlayers = await tournamentService.GetCountPlayersInTournament(tournamentId);
         if (numberOfPlayers >= tournament.SizeLimit)
@@ -172,29 +219,32 @@ app.MapPost("/players/tournaments/{playerId}/{tournamentId}", async (IPlayerServ
         await playerService.RegisterPlayerAsync(playerId, tournamentId);
         return Results.Ok(new { Status = "Success", Message = "Player Registered for Tournament" });
     }
-    catch (Exception ex)
+    catch (Exception ex) // catch exceptions(this will catch if the player is already registered)
     {
         return Results.Ok(new { Status = "Error", Message = ex.Message });
     }
 });
-
+/*
+    Remove a player from a tournament
+    This should remove an entry from the join table
+*/
 app.MapDelete("/players/tournaments/{playerId}/{tournamentId}", async (IPlayerService playerService, ITournamentService tournamentService, int playerId, int tournamentId) =>
 {
     var player = await playerService.GetByIdAsync(playerId);
-    if (player == null)
+    if (player == null) // player does not exist
     {
         return Results.NotFound(new { Status = "Error", Message = "Player not found" });
     }
     var tournament = await tournamentService.GetByIdAsync(tournamentId);
-    if (tournament == null)
+    if (tournament == null) // tournament does not exist
     {
         return Results.NotFound(new { Status = "Error", Message = "Tournament not found" });
     }
-    try
+    try // try to remove player from tournament
     {
         await playerService.RemovePlayerAsync(playerId, tournamentId);
         return Results.Ok(new { Status = "Success", Message = "Player Removed from Tournament" });
-    }
+    } // catch any exceptions that occur while trying to remove player from tournament
     catch (Exception ex)
     {
         return Results.Ok(new { Status = "Error", Message = ex.Message });

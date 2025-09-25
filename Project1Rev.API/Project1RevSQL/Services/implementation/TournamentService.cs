@@ -55,5 +55,16 @@ namespace Project1RevSQL.Services.implementation
                 throw new Exception("Error fetching players", ex);
             }
         }
+        /*
+            handles delete for the program.cs endpoint
+            this finds the tournament by id, then deletes the tournament
+        */
+        public async Task DeleteAsync(int id)
+        {
+            var tournament = await _repo.GetByIdAsync(id);
+
+            await _repo.DeleteAsync(tournament);
+            await _repo.SaveChangesAsync();
+        }
     }
 }
