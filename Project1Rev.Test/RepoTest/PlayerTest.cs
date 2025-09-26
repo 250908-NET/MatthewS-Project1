@@ -10,7 +10,6 @@ namespace Project1Rev.Test
     public class PlayerTest : TestBase
     {
         private readonly PlayerRepo _repository;
-        TournamentTest tournamentTest = new TournamentTest();
         public PlayerTest()
         {
             _repository = new PlayerRepo(Context);

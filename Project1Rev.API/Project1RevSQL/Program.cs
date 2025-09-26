@@ -105,7 +105,7 @@ app.MapDelete("/players/{id}", async (IPlayerService service, int id) =>
     }
     catch (Exception ex) // catch any errors that occure, this should never happen
     {
-        return Results.Ok(new { Status = "Error", Message = ex.Message });
+        return Results.NotFound(new { Status = "Error", Message = ex.Message });
     }
 });
 // Simple Endpoints for Tournaments

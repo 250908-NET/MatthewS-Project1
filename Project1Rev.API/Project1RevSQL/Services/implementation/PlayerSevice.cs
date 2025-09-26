@@ -79,11 +79,6 @@ namespace Project1RevSQL.Services.implementation
         */
         public async Task DeleteAsync(int id)
         {
-            var player = await GetByIdAsync(id);
-            if (player == null)
-            {
-                throw new Exception("Player not found");
-            }
             await _repo.DeleteAsync(id);
             await _repo.SaveChangesAsync();
         }

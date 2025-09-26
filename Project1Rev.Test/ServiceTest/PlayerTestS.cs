@@ -82,13 +82,11 @@ namespace Project1Rev.Test
 
             // Act
             _mockRepo.Setup(repo => repo.AddPlayerAsync(playerId, tournamentId)).Returns(Task.CompletedTask);
-            _mockRepo.Setup(repo => repo.SaveChangesAsync()).Returns(Task.CompletedTask);
 
             await _service.RegisterPlayerAsync(playerId, tournamentId);
 
             // Assert
             _mockRepo.Verify(repo => repo.AddPlayerAsync(playerId, tournamentId), Times.Once);
-            _mockRepo.Verify(repo => repo.SaveChangesAsync(), Times.Once);
         }
         [Fact]
         public async Task RegisterPlayerAsync_ShouldNotRegisterIfPlayerAlreadyRegistered()

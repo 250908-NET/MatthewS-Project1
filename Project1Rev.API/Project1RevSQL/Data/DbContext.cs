@@ -14,7 +14,7 @@ public class TcgDbContext : DbContext
 
     public TcgDbContext(DbContextOptions options) : base(options)
     {
-
+        
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

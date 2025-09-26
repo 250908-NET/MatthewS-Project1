@@ -65,7 +65,7 @@ namespace Project1RevSQL.Repositories.implementation
         }
         public async Task DeleteAsync(int id)
         {
-          var tournament = await _context.Tournaments.FindAsync(id);
+            var tournament = await _context.Tournaments.FindAsync(id);
             if (tournament == null)
             {
                 throw new Exception("Tournament not found");
